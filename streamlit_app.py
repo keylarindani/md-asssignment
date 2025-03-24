@@ -10,8 +10,8 @@ def load_data():
 data = load_data()
 
 # UI Header
-st.title("Machine Learning App")
-st.info("This app will predict your obesity level!")
+st.markdown("<h1 style='text-align: center;'>Machine Learning App</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; background-color: #e3f2fd; padding: 10px; border-radius: 10px;'>This app will predict your obesity level!</p>", unsafe_allow_html=True)
 
 # Menampilkan Raw Data
 st.subheader("Data")
