@@ -22,14 +22,15 @@ if st.checkbox("Tampilkan Raw Data"):
     st.write("This is a raw data")
     st.dataframe(data.head(10))  # Menampilkan 10 data pertama
 
-# Data Visualization
-st.subheader("Data Visualization")
-
 fig, ax = plt.subplots(figsize=(8, 5))
-sns.scatterplot(data=data, x="Height", y="Weight", hue="NObeyesdad", palette="rainbow", alpha=0.8)
+for category in data["NObeyesdad"].unique():
+    subset = data[data["NObeyesdad"] == category]
+    ax.scatter(subset["Height"], subset["Weight"], label=category, alpha=0.7)
+
 plt.xlabel("Height")
 plt.ylabel("Weight")
 plt.title("Scatter Plot: Height vs Weight")
-plt.grid(True)  # Tambahkan grid agar lebih jelas
+plt.legend()
+plt.grid(True)
+st.pyplot(fig)
 
-st.pyplot(fig)  # Pastikan ini ada untuk menampilkan plot
