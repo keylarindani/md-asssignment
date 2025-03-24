@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 st.title("Machine Learning App")
 st.info("This app will predict your obesity level!")
 
-data = pd.read_csv("ObesityDataSet_raw_and_data_sinthetic.csv") 
+data = pd.read_csv("ObesityDataSet_raw_and_data_sinthetic 2.csv") 
 df = pd.DataFrame(data)
 
 # Expander to show raw data
