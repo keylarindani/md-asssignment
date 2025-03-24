@@ -1,67 +1,112 @@
+import streamlit as st
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
+import seaborn as sns
+from obesity_model import ObesityPredictor
 
-class ObesityPredictor:
-    def __init__(self, data_path):
-        self.data_path = data_path
-        self.model = None
-        self.preprocessor = None
-        self.label_encoders = {}
-        self.load_data()
-        self.preprocess_data()
-        self.train_model()
+# Initialize model
+@st.cache_resource
+def load_model():
+    return ObesityPredictor('data/ObesityDataSet.csv')
+
+model = load_model()
+
+# Streamlit app
+st.title('Obesity Level Prediction')
+
+# 1. Show raw data
+st.header('1. Raw Data')
+if st.checkbox('Show raw data'):
+    st.write(model.data)
+
+# 2. Data Visualization
+st.header('2. Data Visualization')
+plot_type = st.selectbox('Select plot type', 
+                        ['Count Plot by Gender', 
+                         'Age Distribution', 
+                         'Height vs Weight',
+                         'Obesity Level Distribution'])
+
+fig, ax = plt.subplots()
+if plot_type == 'Count Plot by Gender':
+    sns.countplot(data=model.data, x='Gender', ax=ax)
+elif plot_type == 'Age Distribution':
+    sns.histplot(data=model.data, x='Age', kde=True, ax=ax)
+elif plot_type == 'Height vs Weight':
+    sns.scatterplot(data=model.data, x='Height', y='Weight', hue='Gender', ax=ax)
+elif plot_type == 'Obesity Level Distribution':
+    sns.countplot(data=model.data, x='NObeyesdad', ax=ax)
+    plt.xticks(rotation=45)
+
+st.pyplot(fig)
+
+# 3. User input for prediction
+st.header('3. Make a Prediction')
+
+# Numerical inputs
+col1, col2, col3 = st.columns(3)
+with col1:
+    age = st.slider('Age', min_value=10, max_value=100, value=25)
+with col2:
+    height = st.slider('Height (m)', min_value=1.0, max_value=2.5, value=1.7, step=0.01)
+with col3:
+    weight = st.slider('Weight (kg)', min_value=30, max_value=200, value=70)
+
+# Categorical inputs
+col4, col5, col6 = st.columns(3)
+with col4:
+    gender = st.selectbox('Gender', ['Male', 'Female'])
+with col5:
+    family_history = st.selectbox('Family History with Overweight', ['yes', 'no'])
+with col6:
+    favc = st.selectbox('Frequent consumption of high caloric food', ['yes', 'no'])
+
+col7, col8, col9 = st.columns(3)
+with col7:
+    fcvc = st.slider('Frequency of vegetables consumption', 1, 3, 2)
+with col8:
+    ncp = st.slider('Number of main meals', 1, 4, 3)
+with col9:
+    caec = st.selectbox('Consumption of food between meals', 
+                       ['no', 'Sometimes', 'Frequently', 'Always'])
+
+# Create input dataframe
+input_data = pd.DataFrame({
+    'Gender': [gender],
+    'Age': [age],
+    'Height': [height],
+    'Weight': [weight],
+    'family_history_with_overweight': [family_history],
+    'FAVC': [favc],
+    'FCVC': [fcvc],
+    'NCP': [ncp],
+    'CAEC': [caec],
+    # Add other features with default values
+    'SMOKE': ['no'],
+    'CH2O': [2],
+    'SCC': ['no'],
+    'FAF': [0],
+    'TUE': [0],
+    'CALC': ['no'],
+    'MTRANS': ['Public_Transportation']
+})
+
+# 5. Show user input
+st.header('4. Your Input Data')
+st.write(input_data)
+
+# Make prediction
+if st.button('Predict Obesity Level'):
+    probabilities, prediction = model.predict(input_data)
     
-    def load_data(self):
-        self.data = pd.read_csv(self.data_path)
-        self.X = self.data.drop('NObeyesdad', axis=1)
-        self.y = self.data['NObeyesdad']
-        
-    def preprocess_data(self):
-        # Identify categorical and numerical columns
-        categorical_cols = self.X.select_dtypes(include=['object', 'category']).columns
-        numerical_cols = self.X.select_dtypes(include=['int64', 'float64']).columns
-        
-        # Create transformers
-        numerical_transformer = StandardScaler()
-        categorical_transformer = Pipeline(steps=[
-            ('onehot', OneHotEncoder(handle_unknown='ignore'))
-        ])
-        
-        # Create preprocessor
-        self.preprocessor = ColumnTransformer(
-            transformers=[
-                ('num', numerical_transformer, numerical_cols),
-                ('cat', categorical_transformer, categorical_cols)
-            ])
-        
-        # Preprocess features
-        self.X_processed = self.preprocessor.fit_transform(self.X)
-        
-        # Encode target variable
-        self.label_encoder = LabelEncoder()
-        self.y_encoded = self.label_encoder.fit_transform(self.y)
-        
-    def train_model(self):
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.X_processed, self.y_encoded, test_size=0.2, random_state=42)
-        
-        # Train Random Forest
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
-        self.model.fit(X_train, y_train)
-        
-    def predict(self, input_data):
-        # Preprocess input data
-        input_processed = self.preprocessor.transform(input_data)
-        
-        # Make prediction
-        probabilities = self.model.predict_proba(input_processed)[0]
-        prediction = self.model.predict(input_processed)[0]
-        prediction_label = self.label_encoder.inverse_transform([prediction])[0]
-        
-        return probabilities, prediction_label
+    # 6. Show probabilities
+    st.header('5. Prediction Probabilities')
+    prob_df = pd.DataFrame({
+        'Class': model.label_encoder.classes_,
+        'Probability': probabilities
+    })
+    st.bar_chart(prob_df.set_index('Class'))
+    
+    # 7. Show final prediction
+    st.header('6. Final Prediction')
+    st.success(f'The predicted obesity level is: {prediction}')
