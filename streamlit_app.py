@@ -22,15 +22,12 @@ if st.checkbox("Tampilkan Raw Data"):
     st.write("This is a raw data")
     st.dataframe(data.head(10))  # Menampilkan 10 data pertama
 
+# Plot manual tanpa streamlit
 fig, ax = plt.subplots(figsize=(8, 5))
-for category in data["NObeyesdad"].unique():
-    subset = data[data["NObeyesdad"] == category]
-    ax.scatter(subset["Height"], subset["Weight"], label=category, alpha=0.7)
-
+sns.scatterplot(data=data, x="Height", y="Weight", hue="NObeyesdad", palette="rainbow", alpha=0.8)
 plt.xlabel("Height")
 plt.ylabel("Weight")
 plt.title("Scatter Plot: Height vs Weight")
-plt.legend()
 plt.grid(True)
-st.pyplot(fig)
+plt.show()  # Harusnya muncul
 
