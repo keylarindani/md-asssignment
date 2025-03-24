@@ -11,7 +11,7 @@ from sklearn.pipeline import Pipeline
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv('ObesityDataSet_raw_and_data_sinthetic.csv')
+    return pd.read_csv('ObesityDataSet_raw_and_data_sinthetic 2.csv')
 
 data = load_data()
 
