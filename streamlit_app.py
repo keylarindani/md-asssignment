@@ -18,3 +18,14 @@ st.subheader("Data")
 if st.checkbox("Tampilkan Raw Data"):
     st.write("This is a raw data")
     st.dataframe(data.head(10))  # Tampilkan 10 data pertama
+
+# Data Visualization
+st.subheader("Data Visualization")
+
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.scatterplot(data=data, x="Height", y="Weight", hue="NObeyesdad", palette="rainbow", alpha=0.8)
+plt.xlabel("Height")
+plt.ylabel("Weight")
+plt.title("Scatter Plot: Height vs Weight")
+
+st.pyplot(fig)
