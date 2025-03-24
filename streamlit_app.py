@@ -1,5 +1,8 @@
+pip install streamlit pandas matplotlib seaborn
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load dataset
 @st.cache_data
@@ -17,7 +20,7 @@ st.markdown("<p style='text-align: center; background-color: #e3f2fd; padding: 1
 st.subheader("Data")
 if st.checkbox("Tampilkan Raw Data"):
     st.write("This is a raw data")
-    st.dataframe(data.head(10))  # Tampilkan 10 data pertama
+    st.dataframe(data.head(10))  # Menampilkan 10 data pertama
 
 # Data Visualization
 st.subheader("Data Visualization")
@@ -27,5 +30,6 @@ sns.scatterplot(data=data, x="Height", y="Weight", hue="NObeyesdad", palette="ra
 plt.xlabel("Height")
 plt.ylabel("Weight")
 plt.title("Scatter Plot: Height vs Weight")
+plt.grid(True)  # Tambahkan grid agar lebih jelas
 
-st.pyplot(fig)
+st.pyplot(fig)  # Pastikan ini ada untuk menampilkan plot
