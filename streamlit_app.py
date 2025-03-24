@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -34,6 +36,16 @@ st.info("Aplikasi ini menggunakan Machine Learning untuk memprediksi obesitas")
 # Menampilkan data
 if st.checkbox("Tampilkan Raw Data"):
     st.write(data.head())
+
+# Visualisasi Data
+if st.checkbox("Tampilkan Visualisasi Data"):
+    st.subheader("Hubungan Tinggi Badan dan Berat Badan")
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=data['Height'], y=data['Weight'], hue=data['NObeyesdad'], palette='viridis', ax=ax)
+    plt.xlabel("Tinggi Badan")
+    plt.ylabel("Berat Badan")
+    plt.title("Visualisasi Obesitas Berdasarkan Tinggi dan Berat")
+    st.pyplot(fig)
 
 # Input Data User
 st.sidebar.header("Masukkan Data")
